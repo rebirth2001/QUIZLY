@@ -13,6 +13,56 @@ export type AuthenticateRequest = {
   password: string;
 };
 
+export type AuthenticateResponse = {
+  success: boolean;
+  accessToken: string;
+};
+
+export class User {
+  private accessToken: string;
+  private username: string;
+  private email: string;
+
+  constructor(access_token: string) {
+    this.accessToken = access_token;
+    this.username = "";
+    this.email = "";
+  }
+
+  public async updateUserDetails() {
+    if (this.username.length > 0 && this.email.length > 0) {
+      return;
+    }
+
+    try {
+      const response = await axios.get(`${API_BASE}/auth/details`, {
+        headers: this.getRequestHeader(),
+      });
+      this.username = response.data?.username;
+      this.email = response.data?.email;
+    } catch (error) {
+      console.log(error);
+    }
+    console.log(this.accessToken, this.email, this.username);
+  }
+
+  private getRequestHeader(): any {
+    const header: any = {};
+    header["Content-Type"] = "application/json";
+    if (this.accessToken.length != 0) {
+      header["Authorization"] = `Bearer ${this.accessToken}`;
+    }
+    return header;
+  }
+
+  public getUsername() {
+    return this.username;
+  }
+  public getEmail() {
+    return this.email;
+  }
+}
+
 export function validateRegisterForm(
   rr: RegisterRequest,
   setErrorMsg: (value: React.SetStateAction<string>) => void
@@ -91,29 +141,31 @@ export async function registerUser(
 }
 
 export async function authenticateUser(
-  request: AuthenticateRequest,
-): Promise<boolean> {
-
+  request: AuthenticateRequest
+): Promise<AuthenticateResponse | null> {
   try {
     const response = await axios.post(
-      `${API_BASE}/v1/auth/sign-in`,
+      `${API_BASE}/auth/sign-in`,
       JSON.stringify(request),
       {
         headers: { "Content-Type": "application/json" },
         withCredentials: false,
       }
     );
-    console.log(JSON.stringify(response?.data));
-    const accessToken = response?.data?.access_token;
-    console.log(accessToken);
-    if (accessToken !== null && accessToken !== "null") {
-      return true;
-    } else {
-      
-      return false;
+    const authResp: AuthenticateResponse = {
+      success: false,
+      accessToken: "",
+    };
+    if (response.status == 200) {
+      authResp.success = true;
     }
+    const accessToken = response?.data?.accessToken;
+    if (accessToken !== null && accessToken !== "null") {
+      authResp.accessToken = accessToken;
+    }
+    return authResp;
   } catch (err) {
     console.error(err);
   }
-  return true;
+  return null;
 }

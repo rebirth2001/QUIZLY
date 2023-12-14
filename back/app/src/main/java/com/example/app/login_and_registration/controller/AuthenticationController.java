@@ -1,15 +1,14 @@
 package com.example.app.login_and_registration.controller;
 
 
-import com.example.app.login_and_registration.http.RegistrationResponse;
+import com.example.app.login_and_registration.http.*;
 import com.example.app.login_and_registration.service.AuthenticationService;
-import com.example.app.login_and_registration.http.AuthenticationRequest;
-import com.example.app.login_and_registration.http.AuthenticationResponse;
-import com.example.app.login_and_registration.http.RegisterRequest;
+import com.example.app.login_and_registration.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -24,6 +23,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AuthenticationController {
     private final AuthenticationService service;
+
+    private final UserService userService;
 
     @PostMapping("/sign-up")
     public ResponseEntity<RegistrationResponse> signUp(
@@ -84,5 +85,17 @@ public class AuthenticationController {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<String> handleValidationExceptions(MethodArgumentNotValidException ex) {
         return ResponseEntity.badRequest().body(ex.getBindingResult().getFieldError().getDefaultMessage());
+    }
+
+    @GetMapping("/details")
+    public ResponseEntity<UserDetails> signUp(
+    ) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
+        System.out.println(email);
+        var user = userService.findByEmail(email);
+        if(user.isEmpty()){
+            return ResponseEntity.badRequest().build();
+        }
+        return ResponseEntity.ok(new UserDetails(user.get().getUsername(),user.get().getEmail()));
     }
 }

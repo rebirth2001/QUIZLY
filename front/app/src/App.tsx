@@ -9,6 +9,7 @@ import QuizStart from "./pages/quizStart";
 import QuizContent from "./pages/quizContent";
 import Quiz from "./pages/quiz";
 import QuizResults from "./pages/quizResults";
+import UserContextProvider from "./context/user/user.context";
 
 function App() {
   const router = createBrowserRouter([
@@ -51,7 +52,9 @@ function App() {
   ]);
   return (
     <>
-      <RouterProvider router={router} />
+      <UserContextProvider>
+        <RouterProvider router={router} />
+      </UserContextProvider>
     </>
   );
 }
