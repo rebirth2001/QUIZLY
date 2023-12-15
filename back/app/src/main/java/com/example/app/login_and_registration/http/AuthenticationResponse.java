@@ -15,6 +15,10 @@ import java.util.List;
 public class AuthenticationResponse {
     @JsonProperty("accessToken")
     private String accessToken;
+    @JsonProperty("refreshToken")
+    private String refreshToken;
+    @JsonProperty("username")
+    private String username;
     @JsonProperty("errors")
     private List<String> errors;
     @JsonProperty("isError")

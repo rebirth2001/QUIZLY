@@ -2,7 +2,9 @@ package com.example.app.login_and_registration.controller;
 
 
 import com.example.app.login_and_registration.http.*;
+import com.example.app.login_and_registration.model.RefreshToken;
 import com.example.app.login_and_registration.service.AuthenticationService;
+import com.example.app.login_and_registration.service.RefreshTokenService;
 import com.example.app.login_and_registration.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,9 +24,9 @@ import java.util.List;
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
 public class AuthenticationController {
-    private final AuthenticationService service;
-
+    private final AuthenticationService authService;
     private final UserService userService;
+    private final RefreshTokenService refreshTokenService;
 
     @PostMapping("/sign-up")
     public ResponseEntity<RegistrationResponse> signUp(
@@ -42,7 +44,7 @@ public class AuthenticationController {
                                             .build();
             return ResponseEntity.badRequest().body(errorResponse);
         }
-        var resp = service.register(request);
+        var resp = authService.register(request);
         if (resp.isError()){
             return ResponseEntity.badRequest().body(resp);
         } else {
@@ -67,7 +69,7 @@ public class AuthenticationController {
             return ResponseEntity.badRequest().body(errorResponse);
         }
 
-        var resp = service.authenticate(request);
+        var resp = authService.authenticate(request,refreshTokenService);
         if (resp.isError()){
             return ResponseEntity.badRequest().body(resp);
         } else {
@@ -79,12 +81,39 @@ public class AuthenticationController {
     public ResponseEntity<AuthenticationResponse> signOut(
             @RequestBody AuthenticationRequest request
     ) {
-        return ResponseEntity.ok(service.authenticate(request));
+        return ResponseEntity.badRequest().build();
     }
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<String> handleValidationExceptions(MethodArgumentNotValidException ex) {
         return ResponseEntity.badRequest().body(ex.getBindingResult().getFieldError().getDefaultMessage());
+    }
+
+    @PostMapping("/refresh-token")
+    public ResponseEntity<AuthenticationResponse>refreshToken(
+            @RequestBody TokenRefreshRequest req
+    ){
+        String requestRefreshToken = req.getRefreshToken();
+
+        var token = refreshTokenService.findByToken(requestRefreshToken);
+        if(token.isEmpty()){
+            return ResponseEntity.badRequest().build();
+        }
+        if(refreshTokenService.isExpired(token.get())){
+            return ResponseEntity.badRequest().build();
+        }
+        token.map(RefreshToken::getUser)
+                .map(user -> {
+                    String jwt = authService.generateJwtToken(user);
+                    return ResponseEntity.ok(
+                            AuthenticationResponse.builder()
+                                    .isError(false)
+                                    .accessToken(jwt)
+                                    .refreshToken(token.get().getToken())
+                                    .username(user.getUsername())
+                    );
+                });
+        return  ResponseEntity.badRequest().build();
     }
 
     @GetMapping("/details")
@@ -93,9 +122,6 @@ public class AuthenticationController {
         String email = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
         System.out.println(email);
         var user = userService.findByEmail(email);
-        if(user.isEmpty()){
-            return ResponseEntity.badRequest().build();
-        }
-        return ResponseEntity.ok(new UserDetails(user.get().getUsername(),user.get().getEmail()));
+        return user.map(value -> ResponseEntity.ok(new UserDetails(value.getUsername(), value.getEmail()))).orElseGet(() -> ResponseEntity.badRequest().build());
     }
 }

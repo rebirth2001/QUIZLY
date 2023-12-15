@@ -68,7 +68,7 @@ public class AuthenticationService {
         }
     }
 
-    public AuthenticationResponse authenticate(AuthenticationRequest request) {
+    public AuthenticationResponse authenticate(AuthenticationRequest request,RefreshTokenService refreshTokenService) {
         request.setEmail(request.getEmail().toLowerCase());
         try {
             var user = userService.findByEmail(request.getEmail())
@@ -76,6 +76,8 @@ public class AuthenticationService {
             var jwtToken = jwtService.generateToken(user);
             return AuthenticationResponse.builder()
                     .accessToken(jwtToken)
+                    .refreshToken(refreshTokenService.createRefreshToken(user.getId()).getToken())
+                    .username(user.getUsername())
                     .build();
         } catch (AuthenticationException e) {
             // Log the exception or handle it appropriately
@@ -86,5 +88,9 @@ public class AuthenticationService {
                     .errors(errors)
                     .build();
         }
+    }
+
+    public String generateJwtToken(User user){
+        return jwtService.generateToken(user);
     }
 }

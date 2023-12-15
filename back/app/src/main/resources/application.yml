@@ -24,3 +24,6 @@ jwt:
     expiration: 900000
     header: Authorization
     prefix: 'Bearer ' # don't remove the trailing space.
+
+  refresh:
+    expiration: 86400000
