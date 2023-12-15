@@ -18,7 +18,7 @@ function App() {
       element: <Index />,
     },
     {
-      path: "/sign-in",
+      path: "/sign-in", 
       element: <SignIn />,
     },
     {

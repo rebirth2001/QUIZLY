@@ -21,9 +21,8 @@ export default function SignIn() {
       password
     }
     const response = await authenticateUser(req);
-    if(response != null && response.accessToken.length >0 && response.success == true){
-      const user = new User(response.accessToken)
-      await user.updateUserDetails();
+    if(response != null && response.accessToken.length >0 && response.success == true && response.refreshToken.length > 0){
+      const user = new User(response.accessToken,response.refreshToken,response.username);
       userContext.setUser(user);
       navigate("/dashboard");
     }else{

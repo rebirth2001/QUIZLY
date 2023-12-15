@@ -16,35 +16,37 @@ export type AuthenticateRequest = {
 export type AuthenticateResponse = {
   success: boolean;
   accessToken: string;
+  refreshToken:string;
+  username:string
 };
 
 export class User {
   private accessToken: string;
   private username: string;
-  private email: string;
+  private refreshToken: string;
 
-  constructor(access_token: string) {
-    this.accessToken = access_token;
-    this.username = "";
-    this.email = "";
+  constructor(accessToken: string,refreshToken:string,username:string) {
+    this.accessToken = accessToken;
+    this.username = username;
+    this.refreshToken = refreshToken;
   }
 
-  public async updateUserDetails() {
-    if (this.username.length > 0 && this.email.length > 0) {
-      return;
-    }
+  // public async updateUserDetails() {
+  //   if (this.username.length > 0 && this.refreshToken.length > 0) {
+  //     return;
+  //   }
 
-    try {
-      const response = await axios.get(`${API_BASE}/auth/details`, {
-        headers: this.getRequestHeader(),
-      });
-      this.username = response.data?.username;
-      this.email = response.data?.email;
-    } catch (error) {
-      console.log(error);
-    }
-    console.log(this.accessToken, this.email, this.username);
-  }
+  //   try {
+  //     const response = await axios.get(`${API_BASE}/auth/details`, {
+  //       headers: this.getRequestHeader(),
+  //     });
+  //     this.username = response.data?.username;
+  //     this.email = response.data?.email;
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  //   console.log(this.accessToken, this.email, this.username);
+  // }
 
   private getRequestHeader(): any {
     const header: any = {};
@@ -57,9 +59,6 @@ export class User {
 
   public getUsername() {
     return this.username;
-  }
-  public getEmail() {
-    return this.email;
   }
 }
 
@@ -155,6 +154,8 @@ export async function authenticateUser(
     const authResp: AuthenticateResponse = {
       success: false,
       accessToken: "",
+      refreshToken:"",
+      username:""
     };
     if (response.status == 200) {
       authResp.success = true;
@@ -162,6 +163,14 @@ export async function authenticateUser(
     const accessToken = response?.data?.accessToken;
     if (accessToken !== null && accessToken !== "null") {
       authResp.accessToken = accessToken;
+    }
+    const refreshToken = response?.data?.refreshToken;
+    if (accessToken !== null && accessToken !== "null") {
+      authResp.refreshToken = refreshToken;
+    }
+    const username = response?.data?.username;
+    if (accessToken !== null && accessToken !== "null") {
+      authResp.username = username;
     }
     return authResp;
   } catch (err) {
