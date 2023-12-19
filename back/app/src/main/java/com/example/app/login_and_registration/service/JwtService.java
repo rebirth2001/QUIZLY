@@ -69,6 +69,10 @@ public class JwtService{
         return jwtConfig.getPrefix();
     }
 
+    public static Long getExpiration(){
+        return jwtConfig.getExpiration();
+    }
+
 //    public String extractEmail(String token){
 //        return extractClaim(token, Claims::getSubject);
 //    }

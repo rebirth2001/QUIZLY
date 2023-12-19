@@ -7,7 +7,7 @@ export default function Dashboard() {
   const userContext = useContext(UserContext);
   return (
     <>
-      {userContext.user != null ? (
+      {userContext.user != null && userContext.user.isValid() ? (
         <LayoutDashboard>
           <div id="home">
             <div className="lg:flex justify-between items-center mb-6">
@@ -15,8 +15,11 @@ export default function Dashboard() {
                 Good afternoon, {userContext.user.getUsername()}!
               </p>
               <Link to={"/quizStart"}>
-                <button className="bg-blue-500 hover:bg-blue-600 focus:outline-none rounded-lg px-6 py-2 text-white font-semibold shadow">
-                  Create a quizz
+                <button className="btn btn-primary">
+                  <span className="relative text-sm font-semibold text-white">
+                    {" "}
+                    Create a new quizz
+                  </span>
                 </button>
               </Link>
             </div>

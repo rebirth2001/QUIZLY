@@ -5,7 +5,7 @@ import {
   RegisterRequest,
   registerUser,
   validateRegisterForm,
-} from "../libs/user";
+} from "../libs/auth_service";
 import React, { useState } from "react";
 import { useNavigate } from "react-router";
 import { Link } from "react-router-dom";

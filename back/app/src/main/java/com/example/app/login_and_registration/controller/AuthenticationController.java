@@ -83,6 +83,7 @@ public class AuthenticationController {
     ) {
         return ResponseEntity.badRequest().build();
     }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<String> handleValidationExceptions(MethodArgumentNotValidException ex) {
@@ -93,27 +94,51 @@ public class AuthenticationController {
     public ResponseEntity<AuthenticationResponse>refreshToken(
             @RequestBody TokenRefreshRequest req
     ){
+        List<String> errors = new ArrayList<>();
         String requestRefreshToken = req.getRefreshToken();
-
         var token = refreshTokenService.findByToken(requestRefreshToken);
         if(token.isEmpty()){
-            return ResponseEntity.badRequest().build();
+            errors.add("Token Not Found");
+            return ResponseEntity.badRequest().body(
+                    AuthenticationResponse.builder()
+                    .isError(true)
+                    .errors(errors)
+                    .build());
         }
         if(refreshTokenService.isExpired(token.get())){
-            return ResponseEntity.badRequest().build();
+            errors.add("Expired Token");
+            return ResponseEntity.badRequest().body(
+                    AuthenticationResponse.builder()
+                            .isError(true)
+                            .errors(errors)
+                            .build());
         }
-        token.map(RefreshToken::getUser)
-                .map(user -> {
-                    String jwt = authService.generateJwtToken(user);
-                    return ResponseEntity.ok(
-                            AuthenticationResponse.builder()
-                                    .isError(false)
-                                    .accessToken(jwt)
-                                    .refreshToken(token.get().getToken())
-                                    .username(user.getUsername())
-                    );
-                });
-        return  ResponseEntity.badRequest().build();
+        try{
+            return token.map(RefreshToken::getUser)
+                    .map(user -> {
+                        String jwt = authService.generateJwtToken(user);
+                        return ResponseEntity.ok(
+                                AuthenticationResponse.builder()
+                                        .isError(false)
+                                        .accessToken(jwt)
+                                        .refreshToken(token.get().getToken())
+                                        .username(user.getUsername())
+                                        .expiration(authService.getExpiration())
+                                        .build()
+                        );
+                    })
+                    .orElseThrow();
+
+        }catch(Exception e){
+            System.out.println(e);
+            errors.add("Internal Server Error");
+            return  ResponseEntity.badRequest().body(
+                    AuthenticationResponse.builder()
+                            .isError(true)
+                            .errors(errors)
+                            .build());
+
+        }
     }
 
     @GetMapping("/details")

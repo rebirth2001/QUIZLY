@@ -75,9 +75,11 @@ public class AuthenticationService {
                     .orElseThrow();
             var jwtToken = jwtService.generateToken(user);
             return AuthenticationResponse.builder()
+                    .isError(false)
                     .accessToken(jwtToken)
-                    .refreshToken(refreshTokenService.createRefreshToken(user.getId()).getToken())
+                    .refreshToken(refreshTokenService.getOrCreateRefreshToken(user).getToken())
                     .username(user.getUsername())
+                    .expiration(getExpiration())
                     .build();
         } catch (AuthenticationException e) {
             // Log the exception or handle it appropriately
@@ -92,5 +94,9 @@ public class AuthenticationService {
 
     public String generateJwtToken(User user){
         return jwtService.generateToken(user);
+    }
+
+    public Long getExpiration(){
+        return JwtService.getExpiration();
     }
 }

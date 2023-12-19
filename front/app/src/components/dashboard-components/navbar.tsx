@@ -10,7 +10,7 @@ export default function NavBar(sideBarCntrl: NavProps) {
   return (
     <>
       <div className="sticky top-0 z-40">
-        <div className="w-full h-20 px-6 bg-gray-100 border-b flex items-center justify-between">
+        <div className="w-full h-20 px-6 border-b flex items-center justify-between">
           <div className="flex">
             {/* mobile ham menu */}
             <div className="inline-block lg:hidden flex items-center mr-4">
@@ -58,8 +58,8 @@ export default function NavBar(sideBarCntrl: NavProps) {
         <div
           className={
             dropDownOpen
-              ? "absolute bg-gray-100 border border-t-0 shadow-xl text-gray-700 rounded-b-lg w-48 bottom-10 right-0 mr-6"
-              : "absolute bg-gray-100 border border-t-0 shadow-xl text-gray-700 rounded-b-lg w-48 bottom-10 right-0 mr-6 hidden"
+              ? "absolute border border-t-0 shadow-xl text-gray-700 rounded-b-lg w-48 bottom-10 right-0 mr-6"
+              : "absolute border border-t-0 shadow-xl text-gray-700 rounded-b-lg w-48 bottom-10 right-0 mr-6 hidden"
           }
         >
           <a href="#" className="block px-4 py-2 hover:bg-gray-200">

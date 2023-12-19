@@ -34,7 +34,7 @@ export default function AppFooter() {
 
             <div className="m-auto mt-16 w-10/12 space-y-4 text-center sm:mt-auto sm:w-5/12 sm:text-left">
               <span className="block text-gray-500 dark:text-gray-400">
-                We make quizzes fun for everyone
+                We make quizzes fun for everyone.
               </span>
               <span className="block text-gray-500 dark:text-gray-400">
                 Equipe Quizzly &copy; <span id="year">2023</span>
@@ -43,7 +43,7 @@ export default function AppFooter() {
               <span className="flex justify-between text-gray-600 dark:text-white">
                 <a href="#" className="font-medium">
                   {" "}
-                  Privacy Policy
+                  Privacy Policy.
                 </a>
               </span>
               <span className="block text-gray-500 dark:text-gray-400">
@@ -53,7 +53,7 @@ export default function AppFooter() {
                   className="font-semibold text-gray-600 dark:text-white"
                 >
                   {" "}
-                  Contact Us
+                  Contact Us.
                 </a>
               </span>
             </div>

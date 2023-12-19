@@ -17,6 +17,8 @@ public class AuthenticationResponse {
     private String accessToken;
     @JsonProperty("refreshToken")
     private String refreshToken;
+    @JsonProperty("expiration")
+    private Long expiration;
     @JsonProperty("username")
     private String username;
     @JsonProperty("errors")
